@@ -10,6 +10,7 @@ Monitors disk read/write speeds, IOPS, and busy percentages in real time. Shows 
 - I/O operations per second (IOPS)
 - Disk busy percentage
 - Aggregated statistics when you stop
+- **Disk usage alerts** when partitions exceed configured thresholds
 
 ## Quick start
 
@@ -37,6 +38,15 @@ python disk_io_monitor.py --list
 
 # Custom history size
 python disk_io_monitor.py -n 20
+
+# Enable disk usage alerts (default thresholds: 80% warning, 90% critical)
+python disk_io_monitor.py --alert
+
+# Custom alert thresholds
+python disk_io_monitor.py --alert --alert-warning 85 --alert-critical 95
+
+# One-time disk usage check
+python disk_io_monitor.py --check-usage
 ```
 
 ## Options
@@ -47,6 +57,10 @@ python disk_io_monitor.py -n 20
 | `-d, --duration` | Total run duration in seconds | infinite |
 | `-n, --history` | Number of samples in history | 10 |
 | `--list` | Show available disks and exit | - |
+| `--alert` | Enable disk usage alerting | disabled |
+| `--alert-warning` | Warning threshold percentage | 80.0 |
+| `--alert-critical` | Critical threshold percentage | 90.0 |
+| `--check-usage` | One-time disk usage check | - |
 
 ## Output example
 
@@ -54,14 +68,25 @@ python disk_io_monitor.py -n 20
 ======================================================================
 Disk I/O Monitor - 2026-03-20 14:32:15
 ======================================================================
-Disk         Read           Write          Read IOPS  Write IOPS Busy %   
+Disk         Read           Write          Read IOPS  Write IOPS Busy %
 ----------------------------------------------------------------------
-nvme0n1       1.25 MB/s       512.00 KB/s      45.2       23.1    12.5%  
-sda           0.00 B/s        0.00 B/s          0.0        0.0     0.0%  
+nvme0n1       1.25 MB/s       512.00 KB/s      45.2       23.1    12.5%
+sda           0.00 B/s        0.00 B/s          0.0        0.0     0.0%
 ----------------------------------------------------------------------
 TOTAL         1.25 MB/s     512.00 KB/s
 ======================================================================
+
+[WARNING] ALERT: /dev/sda1 at 82.3% usage (threshold: 80.0%) at 2026-03-20 14:32:16
 ```
+
+## Disk Usage Alerts
+
+When `--alert` is enabled, the monitor checks disk usage on each interval and triggers alerts when any partition exceeds the configured thresholds:
+
+- **WARNING**: Usage >= warning threshold (default 80%)
+- **CRITICAL**: Usage >= critical threshold (default 90%)
+
+Alerts are rate-limited to once per minute per disk to avoid spam. A summary of all alerts triggered during the session is shown when the monitor stops.
 
 ## Why I wrote this
 
