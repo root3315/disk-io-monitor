@@ -33,12 +33,12 @@ class DiskUsageAlert:
 class DiskUsageAlerter:
     """Monitor disk usage and trigger alerts when thresholds are exceeded."""
 
-    def __init__(self, warning_threshold=80.0, critical_threshold=90.0):
+    def __init__(self, warning_threshold=80.0, critical_threshold=90.0, alert_cooldown=60.0):
         self.warning_threshold = warning_threshold
         self.critical_threshold = critical_threshold
+        self.alert_cooldown = alert_cooldown
         self.alert_history = deque(maxlen=100)
         self.last_alert_time = {}
-        self.alert_cooldown = 60.0
 
     def check_usage(self):
         """Check disk usage and return any triggered alerts."""
@@ -352,6 +352,7 @@ Examples:
   %(prog)s --alert            Enable disk usage alerts (default: 80%% warning, 90%% critical)
   %(prog)s --alert-warning 85 Set warning threshold to 85%%
   %(prog)s --alert-critical 95 Set critical threshold to 95%%
+  %(prog)s --alert-cooldown 30 Set alert cooldown to 30 seconds
   %(prog)s --check-usage      One-time disk usage check
         """
     )
@@ -401,6 +402,12 @@ Examples:
         default=90.0,
         help='Disk usage critical threshold percentage (default: 90.0)'
     )
+    parser.add_argument(
+        '--alert-cooldown',
+        type=float,
+        default=60.0,
+        help='Cooldown period between alerts for the same disk in seconds (default: 60.0)'
+    )
 
     args = parser.parse_args()
 
@@ -424,7 +431,8 @@ Examples:
     if args.alert:
         alerter = DiskUsageAlerter(
             warning_threshold=args.alert_warning,
-            critical_threshold=args.alert_critical
+            critical_threshold=args.alert_critical,
+            alert_cooldown=args.alert_cooldown
         )
 
     monitor = DiskIOMonitor(

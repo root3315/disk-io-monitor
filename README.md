@@ -45,6 +45,9 @@ python disk_io_monitor.py --alert
 # Custom alert thresholds
 python disk_io_monitor.py --alert --alert-warning 85 --alert-critical 95
 
+# Custom alert cooldown
+python disk_io_monitor.py --alert --alert-cooldown 30
+
 # One-time disk usage check
 python disk_io_monitor.py --check-usage
 ```
@@ -60,6 +63,7 @@ python disk_io_monitor.py --check-usage
 | `--alert` | Enable disk usage alerting | disabled |
 | `--alert-warning` | Warning threshold percentage | 80.0 |
 | `--alert-critical` | Critical threshold percentage | 90.0 |
+| `--alert-cooldown` | Cooldown between alerts (seconds) | 60.0 |
 | `--check-usage` | One-time disk usage check | - |
 
 ## Output example
@@ -86,7 +90,7 @@ When `--alert` is enabled, the monitor checks disk usage on each interval and tr
 - **WARNING**: Usage >= warning threshold (default 80%)
 - **CRITICAL**: Usage >= critical threshold (default 90%)
 
-Alerts are rate-limited to once per minute per disk to avoid spam. A summary of all alerts triggered during the session is shown when the monitor stops.
+Alerts are rate-limited per disk using the cooldown period (default 60 seconds). Use `--alert-cooldown` to customize this interval. A summary of all alerts triggered during the session is shown when the monitor stops.
 
 ## Why I wrote this
 
